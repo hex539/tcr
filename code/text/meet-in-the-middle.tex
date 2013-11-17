@@ -1,0 +1,58 @@
+\section {Meet in the middle}
+
+Brute-force solutions that consider all subsets of a set can often be sped up from $ O(a^{f(n)} + g(n)) $ to
+$ O(g(n) \cdot a^{f(n/2)}) $ by breaking them into two halves, solving each half individually, and then `stitching together' the
+partial answers for each half as a post-processing step.
+
+Note that this is different from divide-and-conquer because it may only be possible to subdivide the problem a fixed number of times
+(usually only once in programming competitions).
+
+Let's solve a problem by way of example: You are given an array of N numbers and must find the number of ways to pick 6 elements
+such that their product is equal to some K. Na\"\i vely we could try all $ {N \choose 6} $ possibilities, which is $ O \big( N^6 ) $
+and is only really feasible for $ N \le 32 $. Probably not fast enough.
+
+Here are two faster\footnote{This problem can also be solved in $ O \big( N \cdot K \cdot C \big) | \big( C = 6 \big) $
+time for integer K by dynamic programming over count(subset size; element; product); while polynomial in the size of the array described by N,
+it's exponential in the number of bits in K. Also we're here to talk about meet-in-the-middle.} approaches based on meet-in-the-middle
+algorithms:
+
+\subsection {Partitioning the array}
+
+Let's split the array into halves, one of size $ \lfloor \frac{N}{2} \rfloor $ and the other of size $ \lceil \frac{N}{2} \rceil $.
+Now say we generate all subsets in each half of size $ 0 \le A \le 6 $; the quantity of these subsets is now
+$ \sum_{i=0}^6 \cdot {{N / 2} \choose i} $ so although the asymptotic complexity is the same, the number of states is reduced by a factor
+of at least 64.
+
+If we store the results of this in two associative arrays $ \big\{ $ E, F $ \big\} $ mapping products in each half to number of occurrences,
+the total is easy to calculate as $ \sum_i \textrm{E}_{(\alpha), (i)} \cdot \textrm{F}_{(6-\alpha), (K / i)} \forall i | i \equiv 0 \mod{K} $.
+
+This solution should be fast enough for $ N \le 64 $.
+
+\subsection {Partitioning the subsets}
+
+Instead we could generate all subsets of size 3 and pair them off against each other. This sounds straightforward, but
+there's one catch: Individually generated sub-subsets might intersect, eg. for an input like $ \Big(\Big\{1,2,3,4,5,6\Big\} | K = 36 \Big) $, the ``subset''
+$ \big( 1,2,3 \big) \cup \big( 1,2,3 \big) $ might be counted erroneously as valid.
+
+To combat this, we'd like a data structure that supports the following queries:
+\begin{itemize}
+  \item In(V,A,B,C): Insert a value V with three associated indices A, B, C;
+  \item Ct(V,A,B,C): Find how many of V have been inserted where none of A, B, C are associated.
+\end{itemize}
+
+Thankfully, there is a very well-known technique we can use for this: Inclusion-exclusion. Let's keep the following associative
+arrays:
+\begin{itemize}
+  \item $ \textrm{Q}_{v} $: Multiset of index tuples which produce to v;
+  \item $ \textrm{R}_{v, x} $: Multiset of index tuples containing (x) which produce to v;
+  \item $ \textrm{S}_{v, x, y} $: Multiset of index tuples containing (x, y) which produce to v;
+  \item $ \textrm{T}_{v, x, y, z} $: Multiset of index tuples containing (x, y, z) which produce to v.
+\end{itemize}
+
+From junior school set theory we can see that
+$ \textrm{Ct}(v,a,b,c) = |Q_v| - \Big( \big( |R_{va}| + |R_{vb}| + |R_{vc}| \big) - \big( |S_{vab}| + |S_{vac}| + |S_{vbc}| \big) + \big( |T_{vabc}| \big) \Big) $.
+As long as the arrays are filled in sensibly before queries start, this should give an even more efficient solution (provided
+we remember to divide by 2 at the end, since transpositions of pairs of subsets should be ignored). Pair-counting is constant time
+while the number of subsets being considered is $ N \choose 3 $, so $ O \big( N^3 \big) $ seems like a sensible upper bound.
+This should work in time for $ N \le 180 $ regardless of K, which is nice.
+
