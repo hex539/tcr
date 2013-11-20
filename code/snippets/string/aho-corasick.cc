@@ -39,14 +39,7 @@ template <int N> struct aho{
     }
 
     ~corasick(){
-      queue<aho*> bfs,del;
-      for (bfs.push(root); not bfs.empty(); del.push(bfs.front()), bfs.pop())
-        for (int i=N; i--;)
-          if (bfs.front()->good[i] and bfs.front()->good[i]->fail)
-            bfs.push(bfs.front()->good[i]),
-            bfs.front()->good[i]->fail=0;
-      for (; not del.empty(); del.pop())
-        delete del.front();
+      for (int i=N; i--;) delete good[i];
     }
 
     int count(string const hay){
