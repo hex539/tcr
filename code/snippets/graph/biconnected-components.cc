@@ -1,72 +1,57 @@
-#include <bits/stdc++.h>
-using namespace std;
+#define V_MAX 10000
+#define E_MAX 100000
 
-// a biconnected component is a subgraph in which the minimum cut
-// between any two vertices (a,b) is greater than or equal to 2
-//
-// note that a vertex may appear in multiple BCCs, but an edge
-// is in exactly 1. single edge components are not biconnected
-//
-// the graph of biconnected components is a tree, proof by
-// contradiction (¬tree => cycle => uncontracted BCC)
-
-#define V_MAX 2000    // maximum vertex-count (important: includes blocks)
-#define E_MAX 1000000 // maximum edge-count
-
-// unlike SCCs, BCCs are defined in terms of edges
 int component[E_MAX];
 int components=0;
 
-map<int,int> edge[V_MAX];
+multimap<int,int> edge[V_MAX];
 stack<int> dfs_tree;
-bool seen[E_MAX];
-int vertices=0;
-int edges=0;
 
 int root[V_MAX];
 int idex[V_MAX];
 int indices=0;
 
-void add_edge(int a,int b) {if (not edge[a].count(b)) edge[a][b]=edge[b][a]=edges++;}
-
-int dfs(int x){
-  if (~idex[x]) return idex[x]; else root[x] = idex[x] = indices++;
-
-  for (auto e: edge[x]){
-    if (not seen[e.second])
-      seen[e.second]=true, dfs_tree.push(e.second);
-
-    root[x]=min(root[x],dfs(e.first));
-
-    if (idex[x]<=root[e.first])
-      for (int i=(++components,-1); i!=e.second; component[i]=components-1)
-        i=dfs_tree.top(), dfs_tree.pop();
-  }
-  return root[x];
+void add_edge(int a,int b,int id){
+  edge[a].insert({b,id});
+  edge[b].insert({a,id});
 }
 
-void build_tree(){
-  vector<int> comps;
-  for (int i=vertices; i--; comps.clear()){
-    for (auto e: edge[i]) comps.push_back(vertices+component[e.second]);
-    edge[i].clear(); for (auto j: comps) add_edge(i,j);
+void dfs(int x,int p=-1){
+  if (~idex[x]) return; else root[x] = idex[x] = indices++;
+
+  for (auto e: edge[x]){
+    if (!~idex[e.first]){
+      dfs_tree.push(e.second);
+      dfs(e.first,e.second);
+
+      if (idex[x] <= root[e.first]){
+        while (true){
+          int y = dfs_tree.top(); dfs_tree.pop();
+          component[y]=components;
+          if (y == e.second) break;
+        }
+        ++components;
+      }
+
+      root[x]=min(root[x],root[e.first]);
+    }
+    else if (e.second != p and idex[e.first] < idex[x]){
+      dfs_tree.push(e.second);
+
+      root[x]=min(root[x],idex[e.first]);
+    }
   }
 }
 
 int main(){
-  // simple graph
-  edges=0, vertices=2;
-  add_edge(0,1);
+  int n,m; cin>>n>>m;
+  memset(idex,-1,sizeof idex);
+  for (int i=0; i<m; i++) {int a,b; cin>>a>>b; --a,--b; add_edge(a,b,i);}
 
-  // reset state
-  fill(idex,idex+vertices,-1);
-  fill(seen,seen+edges,false);
-  components=indices=0;
+  for (int i=0; i<n; i++) if (!~idex[i]) dfs(i);
 
-  // compute the component for each edge
-  for (int i=vertices; i--;) dfs(i);
-
-  // make an unrooted cut tree from this information
-  build_tree();
+  vector<int> bridges;
+  static int subscribed[E_MAX];
+  for (int i=0; i<m; i++) ++subscribed[component[i]];
+  for (int i=0; i<m; i++) if (subscribed[component[i]]==1) bridges.push_back(i);
 }
-
