@@ -3,7 +3,7 @@ typedef long double ll; using namespace std;
 
 struct vec2{
   ld x,y;
-  
+
   vec2 operator-(vec2 const &a)const{return {x-a.x,y-a.y};}
   vec2 operator+(vec2 const &a)const{return {x+a.x,y+a.y};}
   vec2 operator*(ld const a)const{return {x*a,y*a};}

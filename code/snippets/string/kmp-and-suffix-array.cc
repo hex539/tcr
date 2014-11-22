@@ -1,21 +1,5 @@
 typedef long long ll; typedef pair<int,int> pi;
-// KMP - use Aho-Corasick for multi-matchings
-void build_table(int* f,char const* s){
-  for (int i=(f[0]=f[1]=1,1); s[i-1]; i++){
-    while ( f[i] and s[f[i]]!=s[i-1]) f[i]=f[f[i]];
-    if (i>1+f[i] and s[f[i]]==s[i-1]) f[i]++;
-    f[i+1]=f[i]; } }
-int count_strings(int* f,char const* s,char const* h){
-  int r=0;
-  for (int i=0,j=0; h[i]; i++){
-    while (j and s[j]!=h[i]) j=f[j];
-    if (s[j]==h[i]) ++j;
-    if (s[j]=='\0') ++r;
-  } return r; }
-int f[1000]; char s[1000]="aba", h[1000]="abagabababba";
-int main() {build_table(f,s); printf("%d\n",count_strings(f,s,h));}
 
-// And now for some suffix array stuff
 void sa_sort(int *a,int *b,int *r,int n,int k) {
   static int c[1100000]; memset(c,0,sizeof(int)*++k);
   for (int i=n; i--;) ++c[r[a[i]]];
@@ -67,6 +51,8 @@ void suffix_array(char *s, int n, int *arr, int *lcp=0) {
 int suffix_upper_bound(char const* needle, char const *str, int const *arr, int n){ int l,r,m;
   for (l=0,r=1<<(33-__builtin_clz(n)); m=l+r/2,r; r/=2) if (m<=n and strcmp(needle,str+arr[m-1])>0) l=m;
   return l; }
+
+// suffix_lower_bound is the same but use ">=0" for the strcmp instead of ">0".
 
 int main(){
   char const *str="flowerpower";

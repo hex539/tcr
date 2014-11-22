@@ -2,7 +2,7 @@
 using namespace std; typedef long long ll;
 
 /* O(1) computation for hashes of arbitrary substrings */
-/* {base, mod} need to be coprime */
+/* {base, mod} need to be coprime 32-bit integers */
 template<ll base,ll mod> struct hasher{
   vector<ll> val,pin;
 
@@ -31,10 +31,6 @@ template<ll base,ll mod> struct hasher{
 
   ll describe(int x,int len){
     return ((val[x+len-1]-(x? val[x-1]: 0)+mod)*pin[x])%mod;
-  }
-
-  bool same(int x,int y,int len){
-    return describe(x,len) == describe(y,len);
   }
 };
 
@@ -68,6 +64,6 @@ struct failsafe{
 int main(){
   string s="banana";
   failsafe checker(s);
-  assert(    checker.same(1,3,3));
-  assert(not checker.same(1,4,2));
+  assert(checker.describe(1,3) == checker.describe(3,3));
+  assert(checker.describe(1,2) != checker.describe(4,2));
 }
