@@ -42,7 +42,7 @@ struct LinkCut{
   }
 
   void link(LinkCut* x) {
-    splay(); x->splay(); p=x; p->l=this; splay();
+    splay(); x->splay(); p=x; p->l=this; expose();
   }
 
   void cut() {
@@ -67,6 +67,7 @@ struct LinkCut{
     expose();
     LinkCut* x=this;
     while (x->r) x=x->r, x->push();
+    x->expose();
     return x;
   }
 
