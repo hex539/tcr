@@ -29,10 +29,13 @@
   XDestroyWindow(dpy,win); }
 
 -------------------------------------------------------------------------------------
-
+/*
+ * Returns the centre of a circle passing through points a,b,c. If a,b,c are colinear
+ * it will divide by 0 so check the crossproduct of (ab) with (bc) is nonzero first.
+ */
 vec2 circumcentre(vec2 a,vec2 b,vec2 c){
   vec2 mid=(a+b)/2, add=(c-b);
-  vec2 ab=(b-a).transverse(), ac=(c-a).transverse(); // (x,y) => (-y,x)
+  vec2 ab=(b-a).transverse(), ac=(c-a).transverse(); // transverse: (x,y) => (-y,x)
   real t=((c/2-b/2)/(ac))/((ab)/(ac));
   return (a+b)/2+ab*t;
 }
@@ -45,7 +48,7 @@ echo `tr -dc A-Za-z0-9 </dev/urandom | head -c 1000000` ## make random |10^6| st
 
 #!/bin/bash
 
-tests=0; right=0; long=0;
+tests=0; ac=0;
 g++ -std=c++11 -Os -o $1 $1.cc || exit
 for tf in tests/$1/*.in                                                          #*/#
   do
@@ -53,23 +56,16 @@ for tf in tests/$1/*.in                                                         
     answer="`cat 'tests/$1/$tn.out' 2>/dev/null`"
     printf "    %s\n " "$tn"
     printf '%.s-' `eval echo {1..$[ 6 + ${#tn} ]}` && echo
-    {
-      rl=$(date +%s%N)
-      output="`./$1 < "$tf"`"
-      rl=$(printf %2.3fs `bc <<< "scale=3; ($(date +%s%N) - $rl) / (10^9)"`)
-      [[ $rl > $long ]] && long=$rl
-    }
-    printf "`tput bold`%s`tput sgr0`\n---\n" "$output"
+    output="`./$1 < "$tf"`"
+    printf "%s\n---\n" "$output"
     if [ -n "$answer" ]
       then
         ((++tests))
         echo "$answer"
-        [ "$output" == "$answer" ] && ((++right)) \
-          || (echo -e 'bold\nsetaf 4' | tput -S && echo "doesn't match`tput sgr0`")
+        [ "$output" == "$answer" ] && ((++ac)) || echo "doesn't match"
       fi
     echo
   done
-[ $tests != 0 ] && echo -n "`tput bold`$right/$tests correct`tput sgr0` "
-echo "(worst time = $long)"
+[ $tests != 0 ] && echo "\n$ac/$tests correct"
 rm -f $1
 exit 0
