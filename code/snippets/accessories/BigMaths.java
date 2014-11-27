@@ -6,10 +6,8 @@ import java.io.*;
 public class BigMaths {
 
   // Utility function to return a StringTokenizer for all
-  // of the input data
-  //
-  // if input is line-by-line then 'return new Scanner(read)'
-  // might be better
+  // of the input data. Use sparingly as this can consume
+  // a lot of memory.
   //
   private static StringTokenizer slurpStdin() throws IOException {
     BufferedReader read = new BufferedReader(new InputStreamReader(System.in));

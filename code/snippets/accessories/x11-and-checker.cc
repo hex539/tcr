@@ -9,7 +9,8 @@
   root=RootWindow(dpy,screen);
   win=
   XCreateSimpleWindow(dpy,root,1,1,512,512,0,BlackPixel(dpy,screen),BlackPixel(dpy,screen));
-  XStoreName(dpy,win,"Output");gc=
+  XStoreName(dpy,win,"Output");
+  gc=
   XCreateGC(dpy,win,0,NULL);
   XSetForeground(dpy,gc,WhitePixel(dpy,screen));
   XSelectInput(dpy,win,ExposureMask|ButtonPressMask);
@@ -42,21 +43,23 @@ vec2 circumcentre(vec2 a,vec2 b,vec2 c){
 
 -------------------------------------------------------------------------------------
 
-echo `tr -dc A-Za-z0-9 </dev/urandom | head -c 1000000` ## make random |10^6| string
+echo `tr -dc A-Za-z0-9 </dev/urandom | head -c 1000000`  #  makes a random |10^6| string
 
 -------------------------------------------------------------------------------------
 
 #!/bin/bash
 
 tests=0; ac=0;
-g++ -std=c++11 -Os -o $1 $1.cc || exit
-for tf in tests/$1/*.in                                                          #*/#
+f="`basename $1 .java`"
+javac "$f.java" || exit
+for tf in tests/$f/*.in                                                          #*/#
   do
     tn=`basename "$tf" .in`
-    answer="`cat 'tests/$1/$tn.out' 2>/dev/null`"
+    answer="`cat \"tests/$f/$tn.out\" 2>/dev/null`"
+    echo "answer is $answer from tests/$f/$tn.out"
     printf "    %s\n " "$tn"
     printf '%.s-' `eval echo {1..$[ 6 + ${#tn} ]}` && echo
-    output="`./$1 < "$tf"`"
+    output="`java $f < "$tf"`"
     printf "%s\n---\n" "$output"
     if [ -n "$answer" ]
       then
@@ -66,6 +69,5 @@ for tf in tests/$1/*.in                                                         
       fi
     echo
   done
-[ $tests != 0 ] && echo "\n$ac/$tests correct"
-rm -f $1
-exit 0
+[ $tests != 0 ] && echo "   ::: $ac/$tests correct :::"
+rm *.class
