@@ -3,25 +3,10 @@ import java.util.*;
 import java.math.*;
 import java.io.*;
 
-public class BigMaths {
-
-  // Utility function to return a StringTokenizer for all
-  // of the input data. Use sparingly as this can consume
-  // a lot of memory.
-  //
-  private static StringTokenizer slurpStdin() throws IOException {
-    BufferedReader read = new BufferedReader(new InputStreamReader(System.in));
-    StringBuilder res = new StringBuilder();
-    for (String s; (s = read.readLine()) != null;) res.append(s + "\n");
-    return new StringTokenizer(res.toString());
-  }
-
+public class BigMaths extends In {
   public static void main(String[] args) throws Exception {
-    StringTokenizer stdin = slurpStdin();
-
     // Random rand = new Random();
     // System.out.println(rand.nextInt());
-
     BigInteger[][] dp = new BigInteger[10001][2];
 
     dp[0][0] = BigInteger.ONE;
@@ -33,10 +18,40 @@ public class BigMaths {
     }
 
     while (stdin.hasMoreTokens()) {
-      int n = Integer.parseInt(stdin.nextToken());
-
+      int n = nextInt();
       BigInteger res = dp[n-2][0].add(dp[n][0]);
       System.out.println(res);
     }
+  }
+}
+
+// Fast input class!
+class In {
+  static BufferedReader mBr = new BufferedReader(new InputStreamReader(System.in));
+  static String[] mTok = {};
+  static int mI = 0;
+
+  static String nextLine() {
+    mI = mTok.length;
+    try {return mBr.readLine();}
+    catch (Throwable e) {return null;}
+  }
+  static String nextString() {
+    for (;;) {
+      if (mI == mTok.length) {
+        mTok = nextLine().split(" ");
+        mI = 0;
+      } else if (mTok[mI].length() == 0) {
+        mI++;
+      } else {
+        return mTok[mI++];
+      }
+    }
+  }
+  static int nextInt() {
+    return Integer.parseInt(nextString());
+  }
+  static double nextDouble() {
+    return Double.parseDouble(nextString());
   }
 }
