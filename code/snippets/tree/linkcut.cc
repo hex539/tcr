@@ -1,5 +1,3 @@
-// <algorithm>
-
 struct LinkCut{
   bool rev;
   LinkCut *p,*l,*r;
