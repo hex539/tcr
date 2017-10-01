@@ -60,7 +60,7 @@ struct LinkCut{
   void evert() {
     expose();
     push();
-    if (r) r->reverse(), r=0;
+    if (r) r->rev^=1, r->push(), r=0;
   }
 
   LinkCut* findroot() {
